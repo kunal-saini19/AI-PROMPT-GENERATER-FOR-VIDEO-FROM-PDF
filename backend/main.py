@@ -7,7 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pipeline import generate_section_with_openrouter, run_pipeline
 
 app = FastAPI(title="Lesson Script Studio API", version="0.1.0")
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"], allow_methods=["*"], allow_headers=["*"])
+frontend_origin = os.getenv("FRONTEND_ORIGIN", "http://localhost:5173")
+app.add_middleware(CORSMiddleware, allow_origins=[frontend_origin], allow_methods=["*"], allow_headers=["*"])
 
 class RegenerateRequest(BaseModel):
     time: str

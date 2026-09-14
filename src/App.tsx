@@ -6,6 +6,8 @@ type ScriptRow  = { time: string; visual: string; voice: string; sfx: string; so
 type Validation = { coverage_percent: number; groundedness_percent: number; readability_grade: number; estimated_seconds: number; duration_target: string; source_pages?: number[]; extracted_pages?: number; selected_pages?: number[]; pages_without_text?: number[]; duration_within_tolerance?: boolean; duration_delta_seconds?: number }
 type TabId      = 'script' | 'checks' | 'trace'
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+const API_BASE_URL = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
+const apiUrl = (path: string) => `${API_BASE_URL}${path}`
 
 /* =========================================================
    CURSOR FOLLOWER
@@ -364,7 +366,7 @@ function App() {
     form.append('instructions', instructions || 'Use clear, age-appropriate language with a strong hook and natural transitions.')
     try {
       setPipelineStage(1)
-      const res = await fetch('/api/generate', { method: 'POST', body: form })
+      const res = await fetch(apiUrl('/api/generate'), { method: 'POST', body: form })
       if (!res.ok) throw new Error(`Backend returned ${res.status}`)
       setPipelineStage(5)
       const result = await res.json()
@@ -401,7 +403,7 @@ function App() {
     const row = rows[index]; setRegeneratingRow(index)
     try {
       const srcTag = Array.isArray(row.source) ? row.source.join(', ') : row.source
-      const res = await fetch('/api/regenerate', {
+      const res = await fetch(apiUrl('/api/regenerate'), {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ time: row.time, source: `${row.voice} (${srcTag})`, grade: Number(grade), style: animationStyle, instructions })
       })
